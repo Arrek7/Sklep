@@ -24,4 +24,8 @@ public class User {
         USER,
         ADMIN,
     }
+
+    public String convertToDatabaseLine() {
+        return String.join(";", this.login, this.password, this.role+"");
+    }
 }

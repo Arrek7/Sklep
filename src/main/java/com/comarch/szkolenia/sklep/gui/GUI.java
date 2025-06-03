@@ -1,22 +1,24 @@
 package com.comarch.szkolenia.sklep.gui;
 
-import com.comarch.szkolenia.sklep.database.ProductRepository;
-import com.comarch.szkolenia.sklep.model.Constants;
+import com.comarch.szkolenia.sklep.database.IProductRepository;
 import com.comarch.szkolenia.sklep.model.Product;
 import com.comarch.szkolenia.sklep.model.User;
 import com.comarch.szkolenia.sklep.weryfikacja.Authenticator;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
-public class GUI {
-    private final Scanner scanner = new Scanner(System.in);
-    @Getter
-    private final static GUI instance = new GUI();
+@Component
+@RequiredArgsConstructor
+@Primary
+public class GUI implements IGUI {
+    private final Scanner scanner;
+    private final IProductRepository productRepository;
+    private final Authenticator authenticator;
 
-    public GUI() {
-    }
-
+    @Override
     public String showMenuAndReadChoose() {
         System.out.println("1. Lista produktów");
         System.out.println(Authenticator.currentUserRole == User.Role.ADMIN ?
@@ -26,51 +28,51 @@ public class GUI {
 
         return scanner.nextLine();
     }
-
+    @Override
     public void showProduct() {
-        for(Product product : ProductRepository.getInstance().getProduct()) {
+        for(Product product : this.productRepository.getProduct()) {
             if (product.getQuantity() > 0) {
                 System.out.println(product);
             }
         }
     }
-
+    @Override
     public int readId() {
         System.out.println("Podaj ID produktu");
         return Integer.parseInt(scanner.nextLine());
     }
-
+    @Override
     public int enterQuantity() {
         System.out.println("Podaj ilość");
         return Integer.parseInt(scanner.nextLine());
     }
-
+    @Override
     public void showResult(boolean result) {
         System.out.println(result ? "kupiono !!" : "Brak produktu !!");
     }
-
+    @Override
     public void showWrongChoose() {
         System.out.println("Zły wybór !! Wybierz ponownie !!");
     }
-
+    @Override
     public String ChooseOption() {
         System.out.println("1. Zaloguj");
         System.out.println("2. Zarejestruj");
 
         return scanner.nextLine();
     }
-
+    @Override
     public User readCredentials() {
         System.out.println("Podaj login:");
         String login = scanner.nextLine();
         System.out.println("Podaj hasło:");
         return new User(login, scanner.nextLine());
     }
-
+    @Override
     public void showIncorrectCredentials() {
         System.out.println(" Niepoprawne dane");
     }
-
+    @Override
     public Product readProductCommonData() {
         System.out.println("ID: ");
         int id = Integer.parseInt(scanner.nextLine());
@@ -85,17 +87,23 @@ public class GUI {
 
         return new Product(id, type, brand, price, quantity);
     }
-
+    @Override
     public User readUserCommonData() {
         System.out.println("Podaj login: ");
         String login = scanner.nextLine();
         System.out.println("Podaj hasło: ");
         String password = scanner.nextLine();
+        String hashedPassword =
+                authenticator.hashedPassword(password);
 
-        return new User(login,password);
+        return new User(login,hashedPassword, User.Role.USER);
     }
-
+    @Override
     public void showRegistrationResult(boolean result) {
         System.out.println(result ? "Rejestracja udana" : "Użytkownik już istnieje");
+    }
+    @Override
+    public void showAddResult (boolean result) {
+        System.out.println( result ? "Zwiękoszono ilość produktu" : "Produkt juz istnieje");
     }
 }

@@ -1,24 +1,27 @@
 package com.comarch.szkolenia.sklep.core;
 
+import com.comarch.szkolenia.sklep.database.IProductRepository;
+import com.comarch.szkolenia.sklep.database.IUserRepository;
 import com.comarch.szkolenia.sklep.database.ProductRepository;
 import com.comarch.szkolenia.sklep.database.UserRepository;
 import com.comarch.szkolenia.sklep.exceptions.BuyProductException;
 import com.comarch.szkolenia.sklep.exceptions.FailedAuthenticationException;
 import com.comarch.szkolenia.sklep.gui.GUI;
+import com.comarch.szkolenia.sklep.gui.IGUI;
 import com.comarch.szkolenia.sklep.model.User;
 import com.comarch.szkolenia.sklep.weryfikacja.Authenticator;
+import com.comarch.szkolenia.sklep.weryfikacja.IAuthenticator;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-public class Core {
-    private final ProductRepository productRepository = ProductRepository.getInstance();
-    private final Authenticator authenticator = Authenticator.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final GUI gui = GUI.getInstance();
-    @Getter
-    private final static Core instance = new Core();
-
-    public Core() {
-    }
+@Component
+@RequiredArgsConstructor
+public class Core implements ICore {
+    private final IProductRepository productRepository;
+    private final IAuthenticator authenticator;
+    private final IUserRepository userRepository;
+    private final IGUI gui;
 
     private boolean authenticateUser() {
         String option = gui.ChooseOption();
@@ -55,7 +58,7 @@ public class Core {
             return authenticateUser();
         }
     }
-
+@Override
     public void start() {
         boolean run = authenticateUser();
         while (run) {
@@ -89,8 +92,5 @@ public class Core {
     }
         private void addProduct() {
             productRepository.addProduct(gui.readProductCommonData());
-        }
-        private void addUser() {
-            userRepository.addUser(gui.readUserCommonData());
         }
 }

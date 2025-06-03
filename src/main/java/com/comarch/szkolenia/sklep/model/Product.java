@@ -32,4 +32,9 @@ public class Product {
                 .append("szt")
                 .toString();
     }
+
+    public String convertToDatabaseLine() {
+        return String.join(";", this.id+"" ,this.type, this.brand,
+                this.price+"",this.quantity+"");
+    }
 }

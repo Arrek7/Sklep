@@ -2,15 +2,19 @@ package com.comarch.szkolenia.sklep.database;
 
 import com.comarch.szkolenia.sklep.model.Product;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProductRepository {
+@Component
+public class ProductRepository implements IProductRepository {
     private final Map<Integer, Product> products;
-    @Getter
-    private final static ProductRepository instance = new ProductRepository();
+    private final String DB_FILE = "vehicles.txt";
 
     private ProductRepository() {
         this.products = new HashMap<>();
@@ -19,11 +23,16 @@ public class ProductRepository {
         this.products.put(3, new Product(3,"Kurtka", "Columbia",150,5));
         this.products.put(4, new Product(4,"Buty", "Nike",70,10));
     }
-
+    @Override
     public void addProduct(Product product) {
-        this.products.put(product.getId(), product);
+       if (this.products.containsKey(product.getId())){
+           Product existProduct = this.products.get(product.getId());
+           existProduct.setQuantity(existProduct.getQuantity() + product.getQuantity());
+       } else {
+           this.products.put(product.getId(), product);
+       }
     }
-
+    @Override
     public boolean buyProduct(int id, int quantity) {
         Product product = this.products.get(id);
 
@@ -33,9 +42,19 @@ public class ProductRepository {
         }
         return false;
     }
-
+    @Override
     public Collection<Product> getProduct() {
         return this.products.values();
     }
-
+    @Override
+    public void persist() {
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(DB_FILE))) {
+            for (Product p : getProduct()) {
+                writer.write(p.convertToDatabaseLine());
+                writer.newLine();
+            }
+        }catch (IOException e) {
+            System.out.println("Nie działa zapisywanie !!");
+        }
+    }
 }
