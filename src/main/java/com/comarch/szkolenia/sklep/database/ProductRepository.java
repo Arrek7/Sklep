@@ -4,9 +4,7 @@ import com.comarch.szkolenia.sklep.model.Product;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +20,18 @@ public class ProductRepository implements IProductRepository {
         this.products.put(2, new Product(2,"Spodnie", "Wrangler",100,1));
         this.products.put(3, new Product(3,"Kurtka", "Columbia",150,5));
         this.products.put(4, new Product(4,"Buty", "Nike",70,10));
+
+        try(BufferedReader bufferedReader = new BufferedReader((new FileReader(DB_FILE)))) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
+                String[] parameters = line.split(";");
+                Product product = new Product(Integer.parseInt(parameters[1]), parameters[2], parameters[2],
+                        Integer.parseInt(parameters[4]), Integer.parseInt(parameters[5]));
+                this.products.put(product.getId(), product);
+            }
+        }catch (IOException e) {
+            System.out.println("Nie działa plik");
+        }
     }
     @Override
     public void addProduct(Product product) {
