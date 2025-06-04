@@ -1,7 +1,6 @@
 package com.comarch.szkolenia.sklep.database;
 
 import com.comarch.szkolenia.sklep.model.User;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -14,11 +13,6 @@ public class UserRepository implements IUserRepository {
     private final String DB_FILE = "users.txt";
 
     public UserRepository() {
-        this.users.put("admin", new User("admin",
-                "73e448ae60c818c23ede44ee35be02b3", User.Role.ADMIN));
-        this.users.put("arek", new User("arek",
-                "0be7f8602e8c857cb0586fd8bd9d8e7e", User.Role.USER));
-
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(DB_FILE))) {
             String line;
             while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
@@ -51,6 +45,16 @@ public class UserRepository implements IUserRepository {
             }
         } catch (IOException e) {
             System.out.println("Nie działa zapisywanie !!");
+        }
+    }
+    @Override
+    public void changeUserRole (String login, User.Role newRole) {
+        User user = users.get(login);
+        if (user != null){
+            user.setRole(newRole);
+            persist();
+        } else {
+            throw new IllegalArgumentException("Nie znaleziono użytkownika");
         }
     }
 }

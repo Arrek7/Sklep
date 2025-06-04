@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 @Configuration
 @ComponentScan(basePackages = {
-        "com.comarch.szkolenia.sklep.authenticator",
+        "com.comarch.szkolenia.sklep.weryfikacja",
         "com.comarch.szkolenia.sklep.core",
         "com.comarch.szkolenia.sklep.database",
         "com.comarch.szkolenia.sklep.gui"

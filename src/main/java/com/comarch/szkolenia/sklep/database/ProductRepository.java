@@ -1,7 +1,7 @@
 package com.comarch.szkolenia.sklep.database;
 
+import com.comarch.szkolenia.sklep.exceptions.BuyProductException;
 import com.comarch.szkolenia.sklep.model.Product;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -12,21 +12,17 @@ import java.util.Map;
 @Component
 public class ProductRepository implements IProductRepository {
     private final Map<Integer, Product> products;
-    private final String DB_FILE = "vehicles.txt";
+    private final String DB_FILE = "product.txt";
 
-    private ProductRepository() {
+    public ProductRepository() {
         this.products = new HashMap<>();
-        this.products.put(1, new Product(1,"T-Shirt", "Nike",50,2));
-        this.products.put(2, new Product(2,"Spodnie", "Wrangler",100,1));
-        this.products.put(3, new Product(3,"Kurtka", "Columbia",150,5));
-        this.products.put(4, new Product(4,"Buty", "Nike",70,10));
 
         try(BufferedReader bufferedReader = new BufferedReader((new FileReader(DB_FILE)))) {
             String line;
             while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
                 String[] parameters = line.split(";");
-                Product product = new Product(Integer.parseInt(parameters[1]), parameters[2], parameters[2],
-                        Integer.parseInt(parameters[4]), Integer.parseInt(parameters[5]));
+                Product product = new Product(Integer.parseInt(parameters[0]), parameters[1], parameters[2],
+                        Double.parseDouble(parameters[3]), Integer.parseInt(parameters[4]));
                 this.products.put(product.getId(), product);
             }
         }catch (IOException e) {
@@ -43,14 +39,17 @@ public class ProductRepository implements IProductRepository {
        }
     }
     @Override
-    public boolean buyProduct(int id, int quantity) {
+    public void buyProduct(int id, int quantity) {
         Product product = this.products.get(id);
 
-        if(product != null && quantity <= product.getQuantity()) {
-            product.setQuantity(product.getQuantity() - quantity);
-            return true;
+        if(product == null) {
+            throw new BuyProductException("Nie ma produktu o podanym ID");
+
+        } if (quantity > product.getQuantity()) {
+
+            throw new BuyProductException("Brak wystarczajacej ilości produktu");
         }
-        return false;
+        product.setQuantity(product.getQuantity()-quantity);
     }
     @Override
     public Collection<Product> getProduct() {

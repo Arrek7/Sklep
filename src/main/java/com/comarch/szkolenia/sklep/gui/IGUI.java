@@ -17,4 +17,7 @@ public interface IGUI{
     User readUserCommonData();
     void showRegistrationResult(boolean result);
     void showAddResult (boolean result);
+    String readUserToChangeRole();
+    void showChangeRoleResult(String login, User.Role newRole);
+    void showUserNotFound();
     }

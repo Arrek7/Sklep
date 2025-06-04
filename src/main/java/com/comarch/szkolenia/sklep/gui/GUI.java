@@ -23,8 +23,14 @@ public class GUI implements IGUI {
         System.out.println("1. Lista produktów");
         System.out.println(Authenticator.currentUserRole == User.Role.ADMIN ?
                 "2. Dodaj produkt" : "2. Kup produkt");
-        System.out.println("3. Wyloguj");
-        System.out.println("4. Exit");
+        if(Authenticator.currentUserRole == User.Role.ADMIN) {
+            System.out.println("3. Zmień role użytkownika");
+            System.out.println("4. Wyloguj");
+            System.out.println("5. Exit");
+        }else{
+            System.out.println("3. Wyloguj");
+            System.out.println("4. Exit");
+        }
 
         return scanner.nextLine();
     }
@@ -105,5 +111,18 @@ public class GUI implements IGUI {
     @Override
     public void showAddResult (boolean result) {
         System.out.println( result ? "Zwiękoszono ilość produktu" : "Produkt juz istnieje");
+    }
+    @Override
+    public String readUserToChangeRole() {
+        System.out.println("Podaj login użytkownika któremu chcesz zmienić role: ");
+        return scanner.nextLine();
+    }
+    @Override
+    public void showChangeRoleResult(String login, User.Role newRole) {
+        System.out.println("Rola użytkownika " + login + " została zmieniona na: " + newRole);
+    }
+    @Override
+    public void showUserNotFound() {
+        System.out.println("Użytkownik nie istnieje!");
     }
 }

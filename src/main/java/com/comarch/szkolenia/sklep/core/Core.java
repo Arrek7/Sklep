@@ -2,16 +2,12 @@ package com.comarch.szkolenia.sklep.core;
 
 import com.comarch.szkolenia.sklep.database.IProductRepository;
 import com.comarch.szkolenia.sklep.database.IUserRepository;
-import com.comarch.szkolenia.sklep.database.ProductRepository;
-import com.comarch.szkolenia.sklep.database.UserRepository;
 import com.comarch.szkolenia.sklep.exceptions.BuyProductException;
 import com.comarch.szkolenia.sklep.exceptions.FailedAuthenticationException;
-import com.comarch.szkolenia.sklep.gui.GUI;
 import com.comarch.szkolenia.sklep.gui.IGUI;
 import com.comarch.szkolenia.sklep.model.User;
 import com.comarch.szkolenia.sklep.weryfikacja.Authenticator;
 import com.comarch.szkolenia.sklep.weryfikacja.IAuthenticator;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -62,35 +58,70 @@ public class Core implements ICore {
     public void start() {
         boolean run = authenticateUser();
         while (run) {
-            switch (gui.showMenuAndReadChoose()) {
-                case "1":
-                    gui.showProduct();
-                    break;
-                case "2":
-                    if(Authenticator.currentUserRole == User.Role.ADMIN) {
+            String menu = gui.showMenuAndReadChoose();
+            if(Authenticator.currentUserRole == User.Role.ADMIN){
+                switch (menu) {
+                    case "1":
+                        gui.showProduct();
+                        break;
+                    case "2":
                         addProduct();
-                    } else {
+                        break;
+                    case "3":
+                        changeUserRole();
+                        break;
+                    case "4":
+                        run = authenticateUser();
+                        break;
+                    case "5":
+                        run = false;
+                        this.productRepository.persist();
+                        this.userRepository.persist();
+                        break;
+                    default:
+                        gui.showWrongChoose();
+                        break;
+                }
+            } else {
+                switch (menu) {
+                    case "1":
+                        gui.showProduct();
+                        break;
+                    case "2":
                         try {
                             productRepository.buyProduct(gui.readId(), gui.enterQuantity());
                             gui.showResult(true);
                         } catch (BuyProductException e) {
                             gui.showResult(false);
                         }
-                    }
-                    break;
-                case "3":
-                    run = authenticateUser();
-                    break;
-                case "4":
-                    run = false;
-                    break;
-                default:
-                    gui.showWrongChoose();
-                    break;
+                        break;
+                    case "3":
+                        run = authenticateUser();
+                        break;
+                    case "4":
+                        run = false;
+                        this.productRepository.persist();
+                        this.userRepository.persist();
+                        break;
+                    default:
+                        gui.showWrongChoose();
+                        break;
+                }
             }
         }
     }
         private void addProduct() {
             productRepository.addProduct(gui.readProductCommonData());
         }
+        private void changeUserRole() {
+        String login = gui.readUserToChangeRole();
+        User user = userRepository.findUser(login);
+        if (user == null) {
+            gui.showUserNotFound();
+            return;
+        }
+        User.Role newRole = (user.getRole() == User.Role.ADMIN) ? User.Role.USER : User.Role.ADMIN;
+        userRepository.changeUserRole(login, newRole);
+        gui.showChangeRoleResult(login, newRole);
+    }
 }
