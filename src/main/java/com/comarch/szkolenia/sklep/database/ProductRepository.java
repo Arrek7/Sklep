@@ -49,7 +49,11 @@ public class ProductRepository implements IProductRepository {
 
             throw new BuyProductException("Brak wystarczajacej ilości produktu");
         }
-        product.setQuantity(product.getQuantity()-quantity);
+        if (product.getQuantity() == quantity) {
+            this.products.remove(id);
+        } else {
+            product.setQuantity(product.getQuantity() - quantity);
+        }
     }
     @Override
     public Collection<Product> getProduct() {

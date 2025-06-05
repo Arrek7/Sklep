@@ -7,5 +7,5 @@ public interface IUserRepository {
     void addUser (User user);
     boolean userExist (String login);
     void persist();
-    void changeUserRole (String login, User.Role newRole);
+    void changeUserRole ();
 }

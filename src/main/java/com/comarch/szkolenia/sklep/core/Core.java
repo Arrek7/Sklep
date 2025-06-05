@@ -68,7 +68,7 @@ public class Core implements ICore {
                         addProduct();
                         break;
                     case "3":
-                        changeUserRole();
+                        userRepository.changeUserRole();
                         break;
                     case "4":
                         run = authenticateUser();
@@ -113,15 +113,4 @@ public class Core implements ICore {
         private void addProduct() {
             productRepository.addProduct(gui.readProductCommonData());
         }
-        private void changeUserRole() {
-        String login = gui.readUserToChangeRole();
-        User user = userRepository.findUser(login);
-        if (user == null) {
-            gui.showUserNotFound();
-            return;
-        }
-        User.Role newRole = (user.getRole() == User.Role.ADMIN) ? User.Role.USER : User.Role.ADMIN;
-        userRepository.changeUserRole(login, newRole);
-        gui.showChangeRoleResult(login, newRole);
-    }
 }

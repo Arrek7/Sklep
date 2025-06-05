@@ -1,14 +1,17 @@
 package com.comarch.szkolenia.sklep.database;
 
+import com.comarch.szkolenia.sklep.gui.IGUI;
 import com.comarch.szkolenia.sklep.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Component
 public class UserRepository implements IUserRepository {
+    private final IGUI gui;
     private final Map<String, User> users = new HashMap<>();
     private final String DB_FILE = "users.txt";
 
@@ -48,13 +51,16 @@ public class UserRepository implements IUserRepository {
         }
     }
     @Override
-    public void changeUserRole (String login, User.Role newRole) {
-        User user = users.get(login);
-        if (user != null){
-            user.setRole(newRole);
-            persist();
-        } else {
-            throw new IllegalArgumentException("Nie znaleziono użytkownika");
+    public void changeUserRole () {
+        String login = gui.readUserToChangeRole();
+        User user = findUser(login);
+        if (user == null){
+            gui.showUserNotFound();
+
         }
+        User.Role newRole = (user.getRole() == User.Role.ADMIN) ? User.Role.USER : User.Role.ADMIN;
+        user.setRole(newRole);
+        persist();
+        gui.showChangeRoleResult(login, newRole);
     }
 }
