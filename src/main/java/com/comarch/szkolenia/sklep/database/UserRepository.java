@@ -1,21 +1,21 @@
 package com.comarch.szkolenia.sklep.database;
 
+import com.comarch.szkolenia.sklep.gui.GUI;
 import com.comarch.szkolenia.sklep.gui.IGUI;
 import com.comarch.szkolenia.sklep.model.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@RequiredArgsConstructor
 @Component
 public class UserRepository implements IUserRepository {
     private final IGUI gui;
     private final Map<String, User> users = new HashMap<>();
     private final String DB_FILE = "users.txt";
 
-    public UserRepository() {
+    public UserRepository(GUI gui) {
+        this.gui = gui;
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(DB_FILE))) {
             String line;
             while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
@@ -56,6 +56,7 @@ public class UserRepository implements IUserRepository {
         User user = findUser(login);
         if (user == null){
             gui.showUserNotFound();
+            return;
 
         }
         User.Role newRole = (user.getRole() == User.Role.ADMIN) ? User.Role.USER : User.Role.ADMIN;
